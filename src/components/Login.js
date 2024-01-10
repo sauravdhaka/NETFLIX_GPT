@@ -1,8 +1,19 @@
+import { useRef, useState } from "react";
+import { checkValidData } from "../utils/validate";
 import Header from "./Header";
-import {Link} from "react-router-dom"
-
+import { Link } from "react-router-dom";
 
 const Login = () => {
+  const [errorMessage,SetErrorMessage] = useState(null)
+  const email = useRef(null);
+  const password = useRef(null);
+  const handleButtonClick = () => {
+    // validation the form
+    const message = checkValidData(email.current.value, password.current.value);
+    //console.log(email.current.value, password.current.value);
+    //console.log(message)
+    SetErrorMessage(message)
+  };
   return (
     <div>
       <Header />
@@ -13,21 +24,32 @@ const Login = () => {
           alt="background"
         />
       </div>
-      <form className="absolute p-12 bg-black w-3/12 my-36 mx-auto right-0 left-0 text-white rounded-lg bg-opacity-80">
+      <form
+        className="absolute p-12 bg-black w-3/12 my-36 mx-auto right-0 left-0 text-white rounded-lg bg-opacity-80"
+        onSubmit={(e) => e.preventDefault()}
+      >
         <h1 className="font-bold text-3xl py-4 ">Sign In</h1>
         <input
+          ref={email}
           type="text"
           placeholder="Email"
           className="p-4 my-4 w-full bg-gray-700"
         />
         <input
+          ref={password}
           type="password"
           placeholder="Password"
           className="p-4 my-4 w-full bg-gray-700"
         />
-        <button className="p-4 my-6 bg-red-700 w-full rounded-lg">Sign In</button>
-        <Link to={'/signup'}>
-        <p>New to Netflix? Sign Up Now</p>
+        <p className="text-red-500">{errorMessage}</p>
+        <button
+          className="p-4 my-6 bg-red-700 w-full rounded-lg"
+          onClick={handleButtonClick}
+        >
+          Sign In
+        </button>
+        <Link to={"/signup"}>
+          <p>New to Netflix? Sign Up Now</p>
         </Link>
       </form>
     </div>
