@@ -1,15 +1,19 @@
 import { useRef, useState } from "react";
 import Header from "./Header";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { checkValidSignUpData } from "../utils/validate";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../utils/firebase";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 
 function SignUp() {
   const [errorMessage, SetErrorMessage] = useState(null);
   const name = useRef(null);
   const email = useRef(null);
   const password = useRef(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch()
   const handleButtonClick = () => {
     // validation the form
     const message = checkValidSignUpData(
@@ -17,8 +21,7 @@ function SignUp() {
       email.current.value,
       password.current.value
     );
-    //console.log(email.current.value, password.current.value);
-    //console.log(message)
+   
     SetErrorMessage(message);
 
     if (message) {
@@ -32,12 +35,25 @@ function SignUp() {
     )
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log(user);
+        updateProfile(user,{
+          displayName : name.current.value
+        })
+        .then(()=>{
+          const {uid,email,displayName} = auth.currentUser;
+          dispatch(addUser({uid:uid,email:email,displayName:displayName}));
+          
+        })
+        .catch((error)=>{
+          SetErrorMessage(error.message)
+        })
+        
+        
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         SetErrorMessage(errorCode+ "- " + errorMessage)
+        
       });
   };
   return (
